@@ -2,8 +2,11 @@ package com.example.ghostriley.motionanalyser;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -61,10 +64,24 @@ public class AnalysingActivity extends AppCompatActivity
             "Unknown 0 0"
     };
 
+    //For timer
+    TextView time;
+    long starttime = 0L;
+    long timeInMilliseconds = 0L;
+    long timeSwapBuff = 0L;
+    long updatedtime = 0L;
+    int t = 1;
+    int secs = 0;
+    int mins = 0;
+    int milliseconds = 0;
+    Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analysing);
+
+        time = (TextView) findViewById(R.id.timer);
 
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
@@ -101,6 +118,18 @@ public class AnalysingActivity extends AppCompatActivity
                 }
                 mStartButton.setVisibility(View.INVISIBLE);
                 mFinishButton.setVisibility(View.VISIBLE);
+
+                if (t == 1) {
+                    starttime = SystemClock.uptimeMillis();
+                    handler.postDelayed(updateTimer, 0);
+                    t = 0;
+                } else {
+                    time.setTextColor(Color.BLUE);
+                    timeSwapBuff += timeInMilliseconds;
+                    handler.removeCallbacks(updateTimer);
+                    t = 1;
+                }
+
                 mApiClient.connect();
             }
         });
@@ -119,6 +148,18 @@ public class AnalysingActivity extends AppCompatActivity
                     Toast.makeText(AnalysingActivity.this, "Failed to save file!", Toast.LENGTH_LONG).show();
                 }
 
+                //Resetting timer
+                starttime = 0L;
+                timeInMilliseconds = 0L;
+                timeSwapBuff = 0L;
+                updatedtime = 0L;
+                t = 1;
+                secs = 0;
+                mins = 0;
+                milliseconds = 0;
+                handler.removeCallbacks(updateTimer);
+                time.setText("00:00:00");
+
                 //restarting application
                 Intent intent = new Intent(AnalysingActivity.this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -126,6 +167,21 @@ public class AnalysingActivity extends AppCompatActivity
             }
         });
     }
+
+    public Runnable updateTimer = new Runnable() {
+        public void run() {
+            timeInMilliseconds = SystemClock.uptimeMillis() - starttime;
+            updatedtime = timeSwapBuff + timeInMilliseconds;
+            secs = (int) (updatedtime / 1000);
+            mins = secs / 60;
+            secs = secs % 60;
+            milliseconds = (int) (updatedtime % 1000);
+            time.setText("" + mins + ":" + String.format("%02d", secs) + ":"
+                    + String.format("%03d", milliseconds));
+            time.setTextColor(Color.RED);
+            handler.postDelayed(this, 0);
+        }
+    };
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -162,7 +218,7 @@ public class AnalysingActivity extends AppCompatActivity
             String timestamp = new SimpleDateFormat("ddMM_HHmm", Locale.US).format(now);
             String path = mediaStorageDir.getPath() + File.separator;
             String fileName = mFileName + "_" + timestamp;
-            file = new File(path + fileName + "_" + timestamp + ".txt");
+            file = new File(path + fileName + ".txt");
 
             PrintWriter out = new PrintWriter(new FileWriter(file));
 
