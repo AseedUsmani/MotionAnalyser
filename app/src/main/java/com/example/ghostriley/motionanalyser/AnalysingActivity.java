@@ -199,7 +199,10 @@ public class AnalysingActivity extends AppCompatActivity
         if (isExternalStorageAvailable()) {
             String externalPath = Environment.getExternalStorageDirectory().toString();
             File mediaStorageDir = new File(externalPath, appName);
+<<<<<<< HEAD
 
+=======
+>>>>>>> bf32221dd4b9f7e11d5d963e546519f79e61a317
             if (!mediaStorageDir.exists()) {
                 if (!mediaStorageDir.mkdir()) {
                     Log.e(TAG, "Failed to create directory");
