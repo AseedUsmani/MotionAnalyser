@@ -89,12 +89,22 @@ public class ActivityRecognizedService extends IntentService {
                     Log.e("ActivityRecogition", "Walking: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[5]));
                     break;
                 }
-                case DetectedActivity.UNKNOWN: {
+
+                case DetectedActivity.TILTING: {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[6]++;
                     }
-                    mObject.mActivity[6] = "Unknown: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[6]);
-                    Log.e("ActivityRecogition", "Unknown: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[6]));
+                    mObject.mActivity[6] = "Tilting: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[6]);
+                    Log.e("ActivityRecogition", "Tilting: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[6]));
+                    break;
+                }
+
+                case DetectedActivity.UNKNOWN: {
+                    if (activity.getConfidence() >= confidence) {
+                        mObject.mCount[7]++;
+                    }
+                    mObject.mActivity[7] = "Unknown: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[7]);
+                    Log.e("ActivityRecogition", "Unknown: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[7]));
                     break;
                 }
             }

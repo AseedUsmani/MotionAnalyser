@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -35,22 +35,31 @@ public class AnalysingActivity extends AppCompatActivity
     public Button mStartButton;
     public Button mFinishButton;
     public static int confidence;
-    public ListView mListView;
-    public static int flag;
+    public static TextView mTextView2;
+    public static TextView mTextView3;
+    public static TextView mTextView4;
+    public static TextView mTextView5;
+    public static TextView mTextView6;
+    public static TextView mTextView7;
+    public static TextView mTextView8;
+    public static TextView mTextView9;
+
     /*
     flag=0 -> Connect API
     flag=1 -> Disconnect API, try to save file, reset counter
     flag=2 -> File saved, wait for start
     */
-    public static int[] mCount = {0, 0, 0, 0, 0, 0, 0};
+    public static int[] mCount = {0, 0, 0, 0, 0, 0, 0, 0};
     public static String mActivity[] = {
-            "Default Data2",
-            "Default Data2",
-            "Default Data2",
-            "Default Data2",
-            "Default Data2",
-            "Default Data2",
-            "Default Data2"};
+            "In Vehicle 0 0",
+            "Cycling 0 0",
+            "On Foot 0 0",
+            "Running 0 0",
+            "Still 0 0",
+            "Walking 0 0",
+            "Tilting 0 0",
+            "Unknown 0 0"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,11 +72,8 @@ public class AnalysingActivity extends AppCompatActivity
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        flag = 2;
-
         mStartButton = (Button) findViewById(R.id.startButton);
         mFinishButton = (Button) findViewById(R.id.finishButton);
-        mListView = (ListView) findViewById(R.id.activityList);
 
         //Retrieving information
         if (savedInstanceState == null) {
@@ -79,7 +85,6 @@ public class AnalysingActivity extends AppCompatActivity
                 mFileName = extras.getString("fileName");
                 mConfidence = extras.getString("confidence");
                 confidence = Integer.parseInt(mConfidence);
-
             }
         } else {
             mFileName = (String) savedInstanceState.getSerializable("fileName");
@@ -91,12 +96,11 @@ public class AnalysingActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 //resetting counter
-                for (int j = 0; j < 7; j++) {
+                for (int j = 0; j < 8; j++) {
                     mCount[j] = 0;
                 }
                 mStartButton.setVisibility(View.INVISIBLE);
                 mFinishButton.setVisibility(View.VISIBLE);
-                flag = 0;
                 mApiClient.connect();
             }
         });
@@ -114,10 +118,10 @@ public class AnalysingActivity extends AppCompatActivity
                     e.printStackTrace();
                     Toast.makeText(AnalysingActivity.this, "Failed to save file!", Toast.LENGTH_LONG).show();
                 }
-                flag = 1;
 
                 //restarting application
                 Intent intent = new Intent(AnalysingActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
         });
@@ -129,6 +133,7 @@ public class AnalysingActivity extends AppCompatActivity
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 3000, pendingIntent);
     }
+
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -161,14 +166,16 @@ public class AnalysingActivity extends AppCompatActivity
 
             PrintWriter out = new PrintWriter(new FileWriter(file));
 
+            //Putting confidence as heading
+            out.println("Confidence Level: " + Integer.toString(confidence) + "\n" + "\n");
+
             // Write each string in the array on a separate line
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 8; i++) {
                 out.println(mActivity[i] + "\n");
             }
 
             out.close();
             Toast.makeText(AnalysingActivity.this, "File saved.", Toast.LENGTH_LONG).show();
-            flag = 2;
         }
     }
 
