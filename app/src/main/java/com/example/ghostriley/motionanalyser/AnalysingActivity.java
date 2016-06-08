@@ -38,15 +38,9 @@ public class AnalysingActivity extends AppCompatActivity
     public Button mStartButton;
     public Button mFinishButton;
     public static int confidence;
-
-    /*
-    flag=0 -> Connect API
-    flag=1 -> Disconnect API, try to save file, reset counter
-    flag=2 -> File saved, wait for start
-    */
     public static int[] mCount = {0, 0, 0, 0, 0, 0, 0, 0};
     public static String mActivity[] = {
-            "In Vehicle 0 0",
+            "Driving 0 0",
             "Cycling 0 0",
             "On Foot 0 0",
             "Running 0 0",
@@ -55,6 +49,7 @@ public class AnalysingActivity extends AppCompatActivity
             "Tilting 0 0",
             "Unknown 0 0"
     };
+    public TextView textView0, textView1, textView2, textView3, textView4, textView5, textView6, textView7;
 
     //For timer
     TextView time;
@@ -74,6 +69,14 @@ public class AnalysingActivity extends AppCompatActivity
         setContentView(R.layout.activity_analysing);
 
         time = (TextView) findViewById(R.id.timer);
+        textView0 = (TextView) findViewById(R.id.textView0);
+        textView1 = (TextView) findViewById(R.id.textView1);
+        textView2 = (TextView) findViewById(R.id.textView2);
+        textView3 = (TextView) findViewById(R.id.textView3);
+        textView4 = (TextView) findViewById(R.id.textView4);
+        textView5 = (TextView) findViewById(R.id.textView5);
+        textView6 = (TextView) findViewById(R.id.textView6);
+        textView7 = (TextView) findViewById(R.id.textView7);
 
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
@@ -108,6 +111,7 @@ public class AnalysingActivity extends AppCompatActivity
                 for (int j = 0; j < 8; j++) {
                     mCount[j] = 0;
                 }
+                mApiClient.connect();
                 mStartButton.setVisibility(View.INVISIBLE);
                 mFinishButton.setVisibility(View.VISIBLE);
 
@@ -121,8 +125,6 @@ public class AnalysingActivity extends AppCompatActivity
                     handler.removeCallbacks(updateTimer);
                     t = 1;
                 }
-
-                mApiClient.connect();
             }
         });
 
@@ -171,6 +173,16 @@ public class AnalysingActivity extends AppCompatActivity
             time.setText("" + mins + ":" + String.format("%02d", secs) + ":"
                     + String.format("%03d", milliseconds));
             time.setTextColor(Color.RED);
+
+            textView0.setText(mActivity[0]);
+            textView1.setText(mActivity[1]);
+            textView2.setText(mActivity[2]);
+            textView3.setText(mActivity[3]);
+            textView4.setText(mActivity[4]);
+            textView5.setText(mActivity[5]);
+            textView6.setText(mActivity[6]);
+            textView7.setText(mActivity[7]);
+
             handler.postDelayed(this, 0);
         }
     };
@@ -199,10 +211,7 @@ public class AnalysingActivity extends AppCompatActivity
         if (isExternalStorageAvailable()) {
             String externalPath = Environment.getExternalStorageDirectory().toString();
             File mediaStorageDir = new File(externalPath, appName);
-<<<<<<< HEAD
 
-=======
->>>>>>> bf32221dd4b9f7e11d5d963e546519f79e61a317
             if (!mediaStorageDir.exists()) {
                 if (!mediaStorageDir.mkdir()) {
                     Log.e(TAG, "Failed to create directory");
