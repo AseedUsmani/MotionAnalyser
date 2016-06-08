@@ -38,14 +38,6 @@ public class AnalysingActivity extends AppCompatActivity
     public Button mStartButton;
     public Button mFinishButton;
     public static int confidence;
-    public static TextView mTextView2;
-    public static TextView mTextView3;
-    public static TextView mTextView4;
-    public static TextView mTextView5;
-    public static TextView mTextView6;
-    public static TextView mTextView7;
-    public static TextView mTextView8;
-    public static TextView mTextView9;
 
     /*
     flag=0 -> Connect API
@@ -140,7 +132,8 @@ public class AnalysingActivity extends AppCompatActivity
                 mApiClient.disconnect();
 
                 //Saving file
-                Toast.makeText(AnalysingActivity.this, "Saving file...", Toast.LENGTH_LONG).show();
+                Toast.makeText(AnalysingActivity.this, "Saving file...", Toast.LENGTH_SHORT
+                ).show();
                 try {
                     saveFile();
                 } catch (IOException e) {
@@ -158,7 +151,6 @@ public class AnalysingActivity extends AppCompatActivity
                 mins = 0;
                 milliseconds = 0;
                 handler.removeCallbacks(updateTimer);
-                time.setText("00:00:00");
 
                 //restarting application
                 Intent intent = new Intent(AnalysingActivity.this, MainActivity.class);
@@ -223,7 +215,11 @@ public class AnalysingActivity extends AppCompatActivity
             PrintWriter out = new PrintWriter(new FileWriter(file));
 
             //Putting confidence as heading
-            out.println("Confidence Level: " + Integer.toString(confidence) + "\n" + "\n");
+            out.println("Confidence Level: " + Integer.toString(confidence));
+            out.println("Time: " + time.getText().toString());
+            out.println("");
+            out.println("");
+            time.setText("00:00:00");
 
             // Write each string in the array on a separate line
             for (int i = 0; i < 8; i++) {
@@ -242,3 +238,4 @@ public class AnalysingActivity extends AppCompatActivity
         else return false;
     }
 }
+
