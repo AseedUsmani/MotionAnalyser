@@ -9,7 +9,7 @@ import com.google.android.gms.location.DetectedActivity;
 
 import java.util.List;
 
-/**
+/*
  * Created by GhostRiley on 28/05/2016.
  */
 
@@ -38,6 +38,8 @@ public class ActivityRecognizedService extends IntentService {
 
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
         confidence = mObject.confidence;
+        mObject.mServiceCount++;
+
         for (DetectedActivity activity : probableActivities) {
             switch (activity.getType()) {
                 case DetectedActivity.IN_VEHICLE: {

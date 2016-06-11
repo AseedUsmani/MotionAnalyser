@@ -49,7 +49,8 @@ public class AnalysingActivity extends AppCompatActivity
             "Tilting 0 0",
             "Unknown 0 0"
     };
-    public TextView textView0, textView1, textView2, textView3, textView4, textView5, textView6, textView7;
+    public static int mServiceCount;
+    public TextView textView0, textView1, textView2, textView3, textView4, textView5, textView6, textView7, textServiceCount;
 
     //For timer
     TextView time;
@@ -77,6 +78,7 @@ public class AnalysingActivity extends AppCompatActivity
         textView5 = (TextView) findViewById(R.id.textView5);
         textView6 = (TextView) findViewById(R.id.textView6);
         textView7 = (TextView) findViewById(R.id.textView7);
+        textServiceCount = (TextView) findViewById(R.id.serviceCount);
 
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
@@ -111,6 +113,7 @@ public class AnalysingActivity extends AppCompatActivity
                 for (int j = 0; j < 8; j++) {
                     mCount[j] = 0;
                 }
+                mServiceCount = 0;
                 mApiClient.connect();
                 mStartButton.setVisibility(View.INVISIBLE);
                 mFinishButton.setVisibility(View.VISIBLE);
@@ -182,6 +185,7 @@ public class AnalysingActivity extends AppCompatActivity
             textView5.setText(mActivity[5]);
             textView6.setText(mActivity[6]);
             textView7.setText(mActivity[7]);
+            textServiceCount.setText("Service Count: " + Integer.toString(mServiceCount));
 
             handler.postDelayed(this, 0);
         }
@@ -237,6 +241,7 @@ public class AnalysingActivity extends AppCompatActivity
             for (int i = 0; i < 8; i++) {
                 out.println(mActivity[i] + "\n");
             }
+            out.println("Service count: " + Integer.toString(mServiceCount));
 
             out.close();
             Toast.makeText(AnalysingActivity.this, "File saved.", Toast.LENGTH_LONG).show();
@@ -250,4 +255,3 @@ public class AnalysingActivity extends AppCompatActivity
         else return false;
     }
 }
-

@@ -128,4 +128,15 @@
         android:text="Unknown"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <TextView
+        android:id="@+id/serviceCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView7"
+        android:paddingTop="4dp"
+        android:text="No. of times Service was called="
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
 </RelativeLayout>

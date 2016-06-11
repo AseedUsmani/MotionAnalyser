@@ -22,28 +22,15 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/fileNameField"
-        android:inputType="textPersonName"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="46dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:hint="Enter a name for the file (alphabets only)"/>
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:inputType="number"
         android:ems="10"
         android:id="@+id/confidenceField"
+        android:hint="Enter confidence level (0-100)"
+        android:layout_below="@+id/taskSpinner"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:hint="Enter confidence level (0-100)"
-        android:layout_below="@+id/fileNameField"
-        android:layout_alignRight="@+id/fileNameField"
-        android:layout_alignEnd="@+id/fileNameField" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -53,5 +40,25 @@
         android:layout_below="@+id/confidenceField"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/taskSpinner"
+        android:layout_marginTop="62dp"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Select Task"
+        android:id="@+id/textView8"
+        android:layout_above="@+id/confidenceField"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="62dp" />
 
 </RelativeLayout>
