@@ -139,4 +139,37 @@
         android:text="No. of times Service was called="
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <TextView
+        android:id="@+id/latitudeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/serviceCount"
+        android:paddingTop="4dp"
+        android:text="Last latitude: "
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/longitudeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/latitudeText"
+        android:paddingTop="4dp"
+        android:text="Last Longitude: "
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/lastUpdateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/longitudeText"
+        android:paddingTop="4dp"
+        android:text="Last Location Update: "
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
 </RelativeLayout>

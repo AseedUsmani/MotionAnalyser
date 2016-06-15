@@ -19,7 +19,6 @@ public class ActivityRecognizedService extends IntentService {
     AnalysingActivity mObject = new AnalysingActivity();
     int confidence;
 
-
     public ActivityRecognizedService() {
         super("ActivityRecognizedService");
     }
@@ -45,6 +44,11 @@ public class ActivityRecognizedService extends IntentService {
                 case DetectedActivity.IN_VEHICLE: {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[0]++;
+                        mObject.flag_d++;
+                        mObject.flag_w = 0;
+                        if (mObject.flag_d == 2) {
+                            mObject.mDelayTime = mObject.delayD;
+                        }
                     }
                     mObject.mActivity[0] = "In Vehicle: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[0]);
                     Log.e("ActivityRecogition", "In Vehicle: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[0]));
@@ -74,6 +78,7 @@ public class ActivityRecognizedService extends IntentService {
                     Log.e("ActivityRecogition", "Running: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[3]));
                     break;
                 }
+
                 case DetectedActivity.STILL: {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[4]++;
@@ -86,6 +91,17 @@ public class ActivityRecognizedService extends IntentService {
                 case DetectedActivity.WALKING: {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[5]++;
+
+                        if (mObject.flag_d >= 2 || mObject.flag_w == 1) {
+                            mObject.flag_w++;
+
+                            if (mObject.flag_w == 2) {
+                                mObject.flag_w = 0;
+                                mObject.flag_d = 0;
+                                mObject.flag = 1;
+                                mObject.mDelayTime = mObject.delayW;
+                            }
+                        }
                     }
                     mObject.mActivity[5] = "Walking: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[5]);
                     Log.e("ActivityRecogition", "Walking: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[5]));

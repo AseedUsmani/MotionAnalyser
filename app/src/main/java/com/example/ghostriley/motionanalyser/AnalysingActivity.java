@@ -1,8 +1,12 @@
 package com.example.ghostriley.motionanalyser;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -33,10 +37,13 @@ public class AnalysingActivity extends AppCompatActivity
     public GoogleApiClient mApiClient;
     public static final String TAG = MainActivity.class.getSimpleName();
 
+
     protected String mFileName;
     protected String mConfidence;
+    protected String mDelay;
     public Button mStartButton;
     public Button mFinishButton;
+    public static int flag;
     public static int confidence;
     public static int[] mCount = {0, 0, 0, 0, 0, 0, 0, 0};
     public static String mActivity[] = {
@@ -49,8 +56,13 @@ public class AnalysingActivity extends AppCompatActivity
             "Tilting 0 0",
             "Unknown 0 0"
     };
+    public static int delayD;
+    public static int delayW;
     public static int mServiceCount;
     public TextView textView0, textView1, textView2, textView3, textView4, textView5, textView6, textView7, textServiceCount;
+    public static TextView mLatitude, mLongitude, lastUpdateText;
+    public static int flag_d, flag_w;
+    public static int mDelayTime;
 
     //For timer
     TextView time;
@@ -63,6 +75,12 @@ public class AnalysingActivity extends AppCompatActivity
     int mins = 0;
     int milliseconds = 0;
     Handler handler = new Handler();
+
+    private LocationManager locManager;
+    private LocationListener locListener = new MyLocationListener();
+
+    private boolean gps_enabled = false;
+    private boolean network_enabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +97,9 @@ public class AnalysingActivity extends AppCompatActivity
         textView6 = (TextView) findViewById(R.id.textView6);
         textView7 = (TextView) findViewById(R.id.textView7);
         textServiceCount = (TextView) findViewById(R.id.serviceCount);
+        mLatitude = (TextView) findViewById(R.id.latitudeText);
+        mLongitude = (TextView) findViewById(R.id.longitudeText);
+        lastUpdateText = (TextView) findViewById(R.id.lastUpdateText);
 
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
@@ -88,6 +109,7 @@ public class AnalysingActivity extends AppCompatActivity
 
         mStartButton = (Button) findViewById(R.id.startButton);
         mFinishButton = (Button) findViewById(R.id.finishButton);
+        locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         //Retrieving information
         if (savedInstanceState == null) {
@@ -95,14 +117,19 @@ public class AnalysingActivity extends AppCompatActivity
             if (extras == null) {
                 mFileName = null;
                 mConfidence = null;
+                mDelay = null;
+
             } else {
                 mFileName = extras.getString("fileName");
                 mConfidence = extras.getString("confidence");
+                mDelay = extras.getString("delayTime");
                 confidence = Integer.parseInt(mConfidence);
+                mDelayTime = Integer.parseInt(mDelay);
             }
         } else {
             mFileName = (String) savedInstanceState.getSerializable("fileName");
             mConfidence = (String) savedInstanceState.getSerializable("confidence");
+            mDelay = (String) savedInstanceState.getSerializable("delayTime");
         } //information retrieved*/
         confidence = Integer.parseInt(mConfidence);
 
@@ -113,7 +140,14 @@ public class AnalysingActivity extends AppCompatActivity
                 for (int j = 0; j < 8; j++) {
                     mCount[j] = 0;
                 }
+                flag = 0;
                 mServiceCount = 0;
+                flag_d = 0;
+                flag_w = 0;
+                mDelayTime = 10 * 60 * 1000;
+                delayD = 10000;
+                delayW = mDelayTime;
+
                 mApiClient.connect();
                 mStartButton.setVisibility(View.INVISIBLE);
                 mFinishButton.setVisibility(View.VISIBLE);
@@ -187,6 +221,11 @@ public class AnalysingActivity extends AppCompatActivity
             textView7.setText(mActivity[7]);
             textServiceCount.setText("Service Count: " + Integer.toString(mServiceCount));
 
+            if (flag == 1) {
+                savingLocation();
+                flag = 0;
+            }
+
             handler.postDelayed(this, 0);
         }
     };
@@ -195,9 +234,8 @@ public class AnalysingActivity extends AppCompatActivity
     public void onConnected(@Nullable Bundle bundle) {
         Intent intent = new Intent(this, ActivityRecognizedService.class);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 3000, pendingIntent);
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, mDelayTime, pendingIntent);
     }
-
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -254,4 +292,79 @@ public class AnalysingActivity extends AppCompatActivity
             return true;
         else return false;
     }
+
+    public void savingLocation() {
+        try {
+            gps_enabled = locManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+        }
+        try {
+            network_enabled = locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex) {
+        }
+
+        // don't start listeners if no provider is enabled
+        if (!gps_enabled && !network_enabled) {
+            /*AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
+            builder.setTitle("Attention!");
+            builder.setMessage("Sorry, location is not determined. Please enable location providers");
+            builder.setPositiveButton("OK", (DialogInterface.OnClickListener) this);
+            builder.setNeutralButton("Cancel", (DialogInterface.OnClickListener) this);
+            builder.create().show();*/
+            mLatitude.setText("Failed to get location");
+            mLongitude.setText("Turn on location services");
+        }
+
+        if (gps_enabled) {
+            locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListener);
+        } else if (network_enabled) {
+            locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locListener);
+        }
+    }
+
+    class MyLocationListener implements LocationListener {
+        @Override
+        public void onLocationChanged(Location location) {
+            if (location != null) {
+                // This need
+                //
+                // s to stop getting the location data and save the battery power.
+                locManager.removeUpdates(locListener);
+
+                String longitude = "Longitude: " + location.getLongitude();
+                String latitude = "Latitude: " + location.getLatitude();
+
+                mLatitude.setText(latitude);
+                mLongitude.setText(longitude);
+                lastUpdateText.setText("" + mins + ":" + String.format("%02d", secs) + ":"
+                        + String.format("%03d", milliseconds));
+            }
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // TODO Auto-generated method stub
+        }
+    }
+
+    /*@Override
+    public void onClick(DialogInterface dialog, int which) {
+        if (which == DialogInterface.BUTTON_NEUTRAL) {
+            Toast.makeText(AnalysingActivity.this, "Sorry, location is not determined. To fix this please enable location providers",
+                    Toast.LENGTH_SHORT).show();
+        } else if (which == DialogInterface.BUTTON_POSITIVE) {
+            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        }
+    }*/
 }
+
