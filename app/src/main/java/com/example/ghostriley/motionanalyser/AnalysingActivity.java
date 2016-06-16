@@ -111,7 +111,7 @@ public class AnalysingActivity extends AppCompatActivity
 
         mStartButton = (Button) findViewById(R.id.startButton);
         mFinishButton = (Button) findViewById(R.id.finishButton);
-        //locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         //Retrieving information
         if (savedInstanceState == null) {
@@ -208,7 +208,7 @@ public class AnalysingActivity extends AppCompatActivity
     public void onConnected(@Nullable Bundle bundle) {
         Intent intent = new Intent(this, ActivityRecognizedService.class);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 30000, pendingIntent);
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 10000, pendingIntent);
     }
 
     @Override
@@ -322,7 +322,7 @@ public class AnalysingActivity extends AppCompatActivity
 
         if (gps_enabled) {
             locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListener);
-        } else if (network_enabled) {
+        } if (network_enabled) {
             locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locListener);
         }
     }
@@ -341,7 +341,7 @@ public class AnalysingActivity extends AppCompatActivity
 
                 mLatitude.setText(latitude);
                 mLongitude.setText(longitude);
-                lastUpdateText.setText("" + mins + ":" + String.format("%02d", secs) + ":"
+                lastUpdateText.setText("Last update" + mins + ":" + String.format("%02d", secs) + ":"
                         + String.format("%03d", milliseconds));
             }
         }

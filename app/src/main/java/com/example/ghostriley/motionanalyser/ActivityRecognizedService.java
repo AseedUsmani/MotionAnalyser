@@ -36,7 +36,8 @@ public class ActivityRecognizedService extends IntentService {
     }
 
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
-        confidence = mObject.confidence;
+        //confidence = mObject.confidence;
+        confidence = 60;
         mObject.mServiceCount++;
 
         for (DetectedActivity activity : probableActivities) {
@@ -81,6 +82,7 @@ public class ActivityRecognizedService extends IntentService {
                 case DetectedActivity.STILL: {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[4]++;
+                        mObject.flag = 1;
                     }
                     mObject.mActivity[4] = "Still: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[4]);
                     Log.e("ActivityRecognition", "Still: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[4]));
@@ -88,7 +90,7 @@ public class ActivityRecognizedService extends IntentService {
                 }
 
                 case DetectedActivity.WALKING: {
-                    if (activity.getConfidence() >= confidence) {
+                    if (activity.getConfidence() >= (confidence - 10)) {
                         mObject.mCount[5]++;
 
                         if (mObject.flag_d >= 2 || mObject.flag_w == 1) {
