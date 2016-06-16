@@ -170,6 +170,9 @@ public class AnalysingActivity extends AppCompatActivity
         mFinishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent2=new Intent(AnalysingActivity.this, ActivityRecognizedService.class);
+                PendingIntent pendingIntent = PendingIntent.getService(AnalysingActivity.this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+                ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
                 mApiClient.disconnect();
 
                 //Saving file
@@ -205,7 +208,7 @@ public class AnalysingActivity extends AppCompatActivity
     public void onConnected(@Nullable Bundle bundle) {
         Intent intent = new Intent(this, ActivityRecognizedService.class);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 5000, pendingIntent);
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 30000, pendingIntent);
     }
 
     @Override
@@ -217,7 +220,6 @@ public class AnalysingActivity extends AppCompatActivity
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Toast.makeText(AnalysingActivity.this, "Connection to Google Services failed!", Toast.LENGTH_LONG).show();
     }
-
 
     public Runnable updateTimer = new Runnable() {
         public void run() {
@@ -308,12 +310,12 @@ public class AnalysingActivity extends AppCompatActivity
 
         // don't start listeners if no provider is enabled
         if (!gps_enabled && !network_enabled) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
+            /*AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
             builder.setTitle("Attention!");
             builder.setMessage("Sorry, location is not determined. Please enable location providers");
             builder.setPositiveButton("OK", (DialogInterface.OnClickListener) this);
             builder.setNeutralButton("Cancel", (DialogInterface.OnClickListener) this);
-            builder.create().show();
+            builder.create().show();*/
             mLatitude.setText("Failed to get location");
             mLongitude.setText("Turn on location services");
         }

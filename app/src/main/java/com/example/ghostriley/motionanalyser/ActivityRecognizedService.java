@@ -47,7 +47,6 @@ public class ActivityRecognizedService extends IntentService {
                         mObject.flag_d++;
                         mObject.flag_w = 0;
                         if (mObject.flag_d == 2) {
-                            mObject.mDelayTime = mObject.delayD;
                         }
                     }
                     mObject.mActivity[0] = "In Vehicle: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[0]);
@@ -99,7 +98,6 @@ public class ActivityRecognizedService extends IntentService {
                                 mObject.flag_w = 0;
                                 mObject.flag_d = 0;
                                 mObject.flag = 1;
-                                mObject.mDelayTime = mObject.delayW;
                             }
                         }
                     }
