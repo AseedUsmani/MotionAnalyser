@@ -2,6 +2,7 @@ package com.example.ghostriley.motionanalyser;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -13,6 +14,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -109,7 +111,7 @@ public class AnalysingActivity extends AppCompatActivity
 
         mStartButton = (Button) findViewById(R.id.startButton);
         mFinishButton = (Button) findViewById(R.id.finishButton);
-        locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        //locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         //Retrieving information
         if (savedInstanceState == null) {
@@ -124,7 +126,7 @@ public class AnalysingActivity extends AppCompatActivity
                 mConfidence = extras.getString("confidence");
                 mDelay = extras.getString("delayTime");
                 confidence = Integer.parseInt(mConfidence);
-                mDelayTime = Integer.parseInt(mDelay);
+                mDelayTime = Integer.parseInt(mDelay)*1000;
             }
         } else {
             mFileName = (String) savedInstanceState.getSerializable("fileName");
@@ -199,6 +201,24 @@ public class AnalysingActivity extends AppCompatActivity
         });
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Intent intent = new Intent(this, ActivityRecognizedService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, 5000, pendingIntent);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Toast.makeText(AnalysingActivity.this, "Connection to Google Services suspended!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(AnalysingActivity.this, "Connection to Google Services failed!", Toast.LENGTH_LONG).show();
+    }
+
+
     public Runnable updateTimer = new Runnable() {
         public void run() {
             timeInMilliseconds = SystemClock.uptimeMillis() - starttime;
@@ -229,23 +249,6 @@ public class AnalysingActivity extends AppCompatActivity
             handler.postDelayed(this, 0);
         }
     };
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Intent intent = new Intent(this, ActivityRecognizedService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mApiClient, mDelayTime, pendingIntent);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Toast.makeText(AnalysingActivity.this, "Connection to Google Services suspended!", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(AnalysingActivity.this, "Connection to Google Services failed!", Toast.LENGTH_LONG).show();
-    }
 
     public void saveFile() throws IOException {
         String appName = getString(R.string.app_name);
@@ -305,12 +308,12 @@ public class AnalysingActivity extends AppCompatActivity
 
         // don't start listeners if no provider is enabled
         if (!gps_enabled && !network_enabled) {
-            /*AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
             builder.setTitle("Attention!");
             builder.setMessage("Sorry, location is not determined. Please enable location providers");
             builder.setPositiveButton("OK", (DialogInterface.OnClickListener) this);
             builder.setNeutralButton("Cancel", (DialogInterface.OnClickListener) this);
-            builder.create().show();*/
+            builder.create().show();
             mLatitude.setText("Failed to get location");
             mLongitude.setText("Turn on location services");
         }
