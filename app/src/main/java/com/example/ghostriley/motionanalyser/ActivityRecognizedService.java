@@ -2,6 +2,8 @@ package com.example.ghostriley.motionanalyser;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -82,7 +84,6 @@ public class ActivityRecognizedService extends IntentService {
                 case DetectedActivity.STILL: {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[4]++;
-                        mObject.flag = 1;
                     }
                     mObject.mActivity[4] = "Still: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[4]);
                     Log.e("ActivityRecognition", "Still: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[4]));
@@ -100,6 +101,11 @@ public class ActivityRecognizedService extends IntentService {
                                 mObject.flag_w = 0;
                                 mObject.flag_d = 0;
                                 mObject.flag = 1;
+                                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                                builder.setContentText("Have you parked your car?");
+                                builder.setSmallIcon(R.mipmap.ic_launcher);
+                                builder.setContentTitle(getString(R.string.app_name));
+                                NotificationManagerCompat.from(this).notify(0, builder.build());
                             }
                         }
                     }

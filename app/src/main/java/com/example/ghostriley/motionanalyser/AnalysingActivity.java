@@ -2,7 +2,6 @@ package com.example.ghostriley.motionanalyser;
 
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -14,7 +13,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +30,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AnalysingActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -65,6 +65,7 @@ public class AnalysingActivity extends AppCompatActivity
     public static TextView mLatitude, mLongitude, lastUpdateText;
     public static int flag_d, flag_w;
     public static int mDelayTime;
+    public String latitude, longitude;
 
     //For timer
     TextView time;
@@ -103,6 +104,10 @@ public class AnalysingActivity extends AppCompatActivity
         mLongitude = (TextView) findViewById(R.id.longitudeText);
         lastUpdateText = (TextView) findViewById(R.id.lastUpdateText);
 
+        //Default
+        latitude = "Latitude: ";
+        longitude = "Longitude: ";
+
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
                 .addConnectionCallbacks(this)
@@ -126,7 +131,7 @@ public class AnalysingActivity extends AppCompatActivity
                 mConfidence = extras.getString("confidence");
                 mDelay = extras.getString("delayTime");
                 confidence = Integer.parseInt(mConfidence);
-                mDelayTime = Integer.parseInt(mDelay)*1000;
+                mDelayTime = Integer.parseInt(mDelay) * 1000;
             }
         } else {
             mFileName = (String) savedInstanceState.getSerializable("fileName");
@@ -142,6 +147,16 @@ public class AnalysingActivity extends AppCompatActivity
                 for (int j = 0; j < 8; j++) {
                     mCount[j] = 0;
                 }
+
+                mActivity[0] = "In Vehicle: 0 0";
+                mActivity[1] = "Cycling: 0 0";
+                mActivity[2] = "On Foot: 0 0";
+                mActivity[3] = "Running: 0 0";
+                mActivity[4] = "Still: 0 0";
+                mActivity[5] = "Walking: 0 0";
+                mActivity[6] = "Tilting: 0 0";
+                mActivity[7] = "Unknown: 0 0";
+
                 flag = 0;
                 mServiceCount = 0;
                 flag_d = 0;
@@ -164,16 +179,24 @@ public class AnalysingActivity extends AppCompatActivity
                     handler.removeCallbacks(updateTimer);
                     t = 1;
                 }
+
+                //checking compatibility
+                /*Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (mServiceCount <= 5) {
+                            Toast.makeText(AnalysingActivity.this, "Device incompatible! Exiting now...", Toast.LENGTH_LONG).show();
+                            disconnect();
+                        }
+                    }
+                }, 2 * 60 * 1000);*/
             }
         });
 
         mFinishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent2=new Intent(AnalysingActivity.this, ActivityRecognizedService.class);
-                PendingIntent pendingIntent = PendingIntent.getService(AnalysingActivity.this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
-                ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
-                mApiClient.disconnect();
 
                 //Saving file
                 Toast.makeText(AnalysingActivity.this, "Saving file...", Toast.LENGTH_SHORT
@@ -196,10 +219,7 @@ public class AnalysingActivity extends AppCompatActivity
                 milliseconds = 0;
                 handler.removeCallbacks(updateTimer);
 
-                //restarting application
-                Intent intent = new Intent(AnalysingActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                disconnect();
             }
         });
     }
@@ -221,6 +241,17 @@ public class AnalysingActivity extends AppCompatActivity
         Toast.makeText(AnalysingActivity.this, "Connection to Google Services failed!", Toast.LENGTH_LONG).show();
     }
 
+    public void disconnect() {
+        Intent intent2 = new Intent(AnalysingActivity.this, ActivityRecognizedService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(AnalysingActivity.this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
+        mApiClient.disconnect();
+
+        Intent intent = new Intent(AnalysingActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
     public Runnable updateTimer = new Runnable() {
         public void run() {
             timeInMilliseconds = SystemClock.uptimeMillis() - starttime;
@@ -229,9 +260,19 @@ public class AnalysingActivity extends AppCompatActivity
             mins = secs / 60;
             secs = secs % 60;
             milliseconds = (int) (updatedtime % 1000);
-            time.setText("" + mins + ":" + String.format("%02d", secs) + ":"
-                    + String.format("%03d", milliseconds));
+            time.setText(String.format("%02d", mins) + ":" + String.format("%02d", secs));
             time.setTextColor(Color.RED);
+
+            //Checking compatibility
+            if (mins == 2 && mServiceCount == 5) {
+                Intent intent2 = new Intent(AnalysingActivity.this, ActivityRecognizedService.class);
+                PendingIntent pendingIntent = PendingIntent.getService(AnalysingActivity.this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+                ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
+                mApiClient.disconnect();
+                Toast.makeText(AnalysingActivity.this, "Device incompatible, exiting now.", Toast.LENGTH_LONG).show();
+                Intent exitIntent = new Intent(AnalysingActivity.this, MainActivity.class);
+                startActivity(exitIntent);
+            }
 
             textView0.setText(mActivity[0]);
             textView1.setText(mActivity[1]);
@@ -248,7 +289,7 @@ public class AnalysingActivity extends AppCompatActivity
                 flag = 0;
             }
 
-            handler.postDelayed(this, 0);
+            handler.postDelayed(this, 1000);
         }
     };
 
@@ -278,15 +319,18 @@ public class AnalysingActivity extends AppCompatActivity
             out.println("Time: " + time.getText().toString());
             out.println("");
             out.println("");
-            time.setText("00:00:00");
+            time.setText(R.string.start_time);
 
             // Write each string in the array on a separate line
             for (int i = 0; i < 8; i++) {
-                out.println(mActivity[i] + "\n");
+                out.println(mActivity[i]);
             }
-            out.println("Service count: " + Integer.toString(mServiceCount));
-
+            out.println("Service Count=" + mServiceCount);
+            out.println(latitude);
+            out.println(longitude);
+            out.println(lastUpdateText.getText().toString());
             out.close();
+
             Toast.makeText(AnalysingActivity.this, "File saved.", Toast.LENGTH_LONG).show();
         }
     }
@@ -322,7 +366,8 @@ public class AnalysingActivity extends AppCompatActivity
 
         if (gps_enabled) {
             locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locListener);
-        } if (network_enabled) {
+        }
+        if (network_enabled) {
             locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locListener);
         }
     }
@@ -336,8 +381,8 @@ public class AnalysingActivity extends AppCompatActivity
                 // s to stop getting the location data and save the battery power.
                 locManager.removeUpdates(locListener);
 
-                String longitude = "Longitude: " + location.getLongitude();
-                String latitude = "Latitude: " + location.getLatitude();
+                longitude = "Longitude: " + location.getLongitude();
+                latitude = "Latitude: " + location.getLatitude();
 
                 mLatitude.setText(latitude);
                 mLongitude.setText(longitude);
@@ -372,4 +417,3 @@ public class AnalysingActivity extends AppCompatActivity
         }
     }*/
 }
-
