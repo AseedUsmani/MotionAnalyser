@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class AnalysingActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -41,12 +39,9 @@ public class AnalysingActivity extends AppCompatActivity
 
 
     protected String mFileName;
-    protected String mConfidence;
-    protected String mDelay;
     public Button mStartButton;
     public Button mFinishButton;
     public static int flag;
-    public static int confidence;
     public static int[] mCount = {0, 0, 0, 0, 0, 0, 0, 0};
     public static String mActivity[] = {
             "Driving 0 0",
@@ -107,6 +102,7 @@ public class AnalysingActivity extends AppCompatActivity
         //Default
         latitude = "Latitude: ";
         longitude = "Longitude: ";
+        flag = 0;
 
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(ActivityRecognition.API)
@@ -123,26 +119,19 @@ public class AnalysingActivity extends AppCompatActivity
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
                 mFileName = null;
-                mConfidence = null;
-                mDelay = null;
 
             } else {
                 mFileName = extras.getString("fileName");
-                mConfidence = extras.getString("confidence");
-                mDelay = extras.getString("delayTime");
-                confidence = Integer.parseInt(mConfidence);
-                mDelayTime = Integer.parseInt(mDelay) * 1000;
             }
         } else {
             mFileName = (String) savedInstanceState.getSerializable("fileName");
-            mConfidence = (String) savedInstanceState.getSerializable("confidence");
-            mDelay = (String) savedInstanceState.getSerializable("delayTime");
         } //information retrieved*/
-        confidence = Integer.parseInt(mConfidence);
 
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 //resetting counter
                 for (int j = 0; j < 8; j++) {
                     mCount[j] = 0;
@@ -179,18 +168,6 @@ public class AnalysingActivity extends AppCompatActivity
                     handler.removeCallbacks(updateTimer);
                     t = 1;
                 }
-
-                //checking compatibility
-                /*Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (mServiceCount <= 5) {
-                            Toast.makeText(AnalysingActivity.this, "Device incompatible! Exiting now...", Toast.LENGTH_LONG).show();
-                            disconnect();
-                        }
-                    }
-                }, 2 * 60 * 1000);*/
             }
         });
 
@@ -199,26 +176,13 @@ public class AnalysingActivity extends AppCompatActivity
             public void onClick(View v) {
 
                 //Saving file
-                Toast.makeText(AnalysingActivity.this, "Saving file...", Toast.LENGTH_SHORT
-                ).show();
+                Toast.makeText(AnalysingActivity.this, "Saving file...", Toast.LENGTH_SHORT).show();
                 try {
                     saveFile();
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(AnalysingActivity.this, "Failed to save file!", Toast.LENGTH_LONG).show();
                 }
-
-                //Resetting timer
-                starttime = 0L;
-                timeInMilliseconds = 0L;
-                timeSwapBuff = 0L;
-                updatedtime = 0L;
-                t = 1;
-                secs = 0;
-                mins = 0;
-                milliseconds = 0;
-                handler.removeCallbacks(updateTimer);
-
                 disconnect();
             }
         });
@@ -242,6 +206,18 @@ public class AnalysingActivity extends AppCompatActivity
     }
 
     public void disconnect() {
+
+        //Resetting timer
+        starttime = 0L;
+        timeInMilliseconds = 0L;
+        timeSwapBuff = 0L;
+        updatedtime = 0L;
+        t = 1;
+        secs = 0;
+        mins = 0;
+        milliseconds = 0;
+        handler.removeCallbacks(updateTimer);
+
         Intent intent2 = new Intent(AnalysingActivity.this, ActivityRecognizedService.class);
         PendingIntent pendingIntent = PendingIntent.getService(AnalysingActivity.this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
         ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
@@ -250,6 +226,8 @@ public class AnalysingActivity extends AppCompatActivity
         Intent intent = new Intent(AnalysingActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+
+        finish();
     }
 
     public Runnable updateTimer = new Runnable() {
@@ -262,17 +240,6 @@ public class AnalysingActivity extends AppCompatActivity
             milliseconds = (int) (updatedtime % 1000);
             time.setText(String.format("%02d", mins) + ":" + String.format("%02d", secs));
             time.setTextColor(Color.RED);
-
-            //Checking compatibility
-            if (mins == 2 && mServiceCount == 5) {
-                Intent intent2 = new Intent(AnalysingActivity.this, ActivityRecognizedService.class);
-                PendingIntent pendingIntent = PendingIntent.getService(AnalysingActivity.this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
-                ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
-                mApiClient.disconnect();
-                Toast.makeText(AnalysingActivity.this, "Device incompatible, exiting now.", Toast.LENGTH_LONG).show();
-                Intent exitIntent = new Intent(AnalysingActivity.this, MainActivity.class);
-                startActivity(exitIntent);
-            }
 
             textView0.setText(mActivity[0]);
             textView1.setText(mActivity[1]);
@@ -290,6 +257,11 @@ public class AnalysingActivity extends AppCompatActivity
             }
 
             handler.postDelayed(this, 1000);
+            //Checking compatibility
+            if (mins == 1 && mServiceCount <= 9) {
+                Toast.makeText(AnalysingActivity.this, "Device Incompatible! \n Exiting now...", Toast.LENGTH_SHORT).show();
+                disconnect();
+            }
         }
     };
 
@@ -315,7 +287,6 @@ public class AnalysingActivity extends AppCompatActivity
             PrintWriter out = new PrintWriter(new FileWriter(file));
 
             //Putting confidence as heading
-            out.println("Confidence Level: " + Integer.toString(confidence));
             out.println("Time: " + time.getText().toString());
             out.println("");
             out.println("");

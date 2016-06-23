@@ -18,54 +18,23 @@
         android:text="Enter information for the file:"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <EditText
-        android:id="@+id/confidenceField"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:ems="10"
-        android:hint="Enter confidence level (0-100)"
-        android:inputType="number" />
-
     <Button
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
+        android:text="Next >"
+        android:layout_below="@+id/editText"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/confidenceField"
-        android:text="Next >" />
-
-    <Spinner
-        android:id="@+id/taskSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/delayTimeField"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="42dp" />
-
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/taskSpinner"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:text="Select Task"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_alignParentEnd="true" />
 
     <EditText
-        android:id="@+id/delayTimeField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/confidenceField"
+        android:id="@+id/editText"
+        android:layout_below="@+id/textView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:ems="10"
-        android:hint="Enter delay time in seconds"
-        android:inputType="number" />
+        android:layout_marginTop="48dp"
+        android:hint="Enter name for the file"/>
 
 </RelativeLayout>
