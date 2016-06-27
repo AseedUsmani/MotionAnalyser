@@ -290,17 +290,20 @@ public class AnalysingActivity extends AppCompatActivity
             out.println("");
             time.setText(R.string.start_time);
             int average;
+            out.println("Activity - Last - Count - Average");
+            out.println("        Confidence               ");
 
             // Write each string in the array on a separate line
             for (int i = 0; i < 8; i++) {
                 //Calculating averages
+
 
                 if (count[i] != 0) {
                     average = sum[i] / count[i];
                 } else {
                     average = 0;
                 }
-                out.println(mActivity[i] + " " + average);
+                out.println(mActivity[i] + "    " + average);
             }
             out.println("Service Count=" + mServiceCount);
             out.println(latitude);
@@ -383,6 +386,7 @@ public class AnalysingActivity extends AppCompatActivity
             // TODO Auto-generated method stub
         }
     }
+
 
     /*@Override
     public void onClick(DialogInterface dialog, int which) {
