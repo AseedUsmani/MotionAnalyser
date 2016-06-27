@@ -53,12 +53,13 @@ public class AnalysingActivity extends AppCompatActivity
             "Tilting 0 0",
             "Unknown 0 0"
     };
-    public static int mServiceCount;
+    public static int mServiceCount; //Count no. of times service has been called
     public TextView textView0, textView1, textView2, textView3, textView4, textView5, textView6, textView7, textServiceCount;
-    public static TextView mLatitude, mLongitude, lastUpdateText;
-    public String latitude, longitude;
-    public static int[] sum = {0, 0, 0, 0, 0, 0, 0, 0};
-    public static int[] count = {0, 0, 0, 0, 0, 0, 0, 0};
+    public static TextView mLatitude, mLongitude, lastUpdateText; //To display
+    public static int flag_d, flag_w; //To detect parking
+    public String latitude, longitude; //To save latitude and longitude
+    public static int[] sum = {0, 0, 0, 0, 0, 0, 0, 0}; //To calculate sum of values of confidence, and hence the average
+    public static int[] count = {0, 0, 0, 0, 0, 0, 0, 0}; //To calculate average
 
     //For timer
     TextView time;
@@ -147,6 +148,8 @@ public class AnalysingActivity extends AppCompatActivity
 
                 flag = 0;
                 mServiceCount = 0;
+                flag_d = 0;
+                flag_w = 0;
 
                 mApiClient.connect();
                 mStartButton.setVisibility(View.INVISIBLE);
@@ -290,7 +293,13 @@ public class AnalysingActivity extends AppCompatActivity
 
             // Write each string in the array on a separate line
             for (int i = 0; i < 8; i++) {
-                average = sum[i] / count[i];
+                //Calculating averages
+
+                if (count[i] != 0) {
+                    average = sum[i] / count[i];
+                } else {
+                    average = 0;
+                }
                 out.println(mActivity[i] + " " + average);
             }
             out.println("Service Count=" + mServiceCount);
