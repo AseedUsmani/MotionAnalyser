@@ -38,6 +38,7 @@ public class ActivityRecognizedService extends IntentService {
     }
 
     private void handleDetectedActivities(List<DetectedActivity> probableActivities) {
+
         confidence = 60;
         mObject.mServiceCount++;
 
@@ -51,8 +52,8 @@ public class ActivityRecognizedService extends IntentService {
                         mObject.flag_d++;
                         mObject.flag_w = 0;
                     }
-                    mObject.mActivity[0] = "In Vehicle: " + Integer.toString(activity.getConfidence()) + "   " + Integer.toString(mObject.mCount[0]);
-                    Log.e("ActivityRecognition", "In Vehicle: " + activity.getConfidence() + "   " + Integer.toString(mObject.mCount[0]));
+                    mObject.mActivity[0] = "In Vehicle: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[0]);
+                    Log.e("ActivityRecognition", "In Vehicle: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[0]));
                     break;
                 }
                 case DetectedActivity.ON_BICYCLE: {
@@ -61,7 +62,7 @@ public class ActivityRecognizedService extends IntentService {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[1]++;
                     }
-                    mObject.mActivity[1] = "Cycling:   " + Integer.toString(activity.getConfidence()) + "   " + Integer.toString(mObject.mCount[1]);
+                    mObject.mActivity[1] = "Cycling: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[1]);
                     Log.e("ActivityRecognition", "Cycling: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[1]));
                     break;
                 }
@@ -71,7 +72,7 @@ public class ActivityRecognizedService extends IntentService {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[2]++;
                     }
-                    mObject.mActivity[2] = "On Foot:   " + Integer.toString(activity.getConfidence()) + "   " + Integer.toString(mObject.mCount[2]);
+                    mObject.mActivity[2] = "On Foot: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[2]);
                     Log.e("ActivityRecognition", "On foot: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[2]));
                     break;
                 }
@@ -81,7 +82,7 @@ public class ActivityRecognizedService extends IntentService {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[3]++;
                     }
-                    mObject.mActivity[3] = "Running:   " + Integer.toString(activity.getConfidence()) + "   " + Integer.toString(mObject.mCount[3]);
+                    mObject.mActivity[3] = "Running: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[3]);
                     Log.e("ActivityRecognition", "Running: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[3]));
                     break;
                 }
@@ -93,8 +94,8 @@ public class ActivityRecognizedService extends IntentService {
                         mObject.mCount[4]++;
                     }
 
-                    mObject.mActivity[4] = "Still:   " + Integer.toString(activity.getConfidence()) + "   " + Integer.toString(mObject.mCount[4]);
-                    Log.e("ActivityRecognition", "Still:   " + activity.getConfidence() + "   " + Integer.toString(mObject.mCount[4]));
+                    mObject.mActivity[4] = "Still: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[4]);
+                    Log.e("ActivityRecognition", "Still: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[4]));
                     break;
                 }
 
@@ -119,7 +120,7 @@ public class ActivityRecognizedService extends IntentService {
                             }
                         }
                     }
-                    mObject.mActivity[5] = "Walking:   " + Integer.toString(activity.getConfidence()) + "   " + Integer.toString(mObject.mCount[5]);
+                    mObject.mActivity[5] = "Walking: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[5]);
                     Log.e("ActivityRecognition", "Walking: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[5]));
                     break;
                 }
@@ -130,7 +131,7 @@ public class ActivityRecognizedService extends IntentService {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[6]++;
                     }
-                    mObject.mActivity[6] = "Tilting:   " + Integer.toString(activity.getConfidence()) + "   " + Integer.toString(mObject.mCount[6]);
+                    mObject.mActivity[6] = "Tilting: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[6]);
                     Log.e("ActivityRecognition", "Tilting: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[6]));
                     break;
                 }
@@ -141,7 +142,7 @@ public class ActivityRecognizedService extends IntentService {
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[7]++;
                     }
-                    mObject.mActivity[7] = "Unknown:   " + Integer.toString(activity.getConfidence()) + "   " + Integer.toString(mObject.mCount[7]);
+                    mObject.mActivity[7] = "Unknown: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[7]);
                     Log.e("ActivityRecognition", "Unknown: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[7]));
                     break;
                 }

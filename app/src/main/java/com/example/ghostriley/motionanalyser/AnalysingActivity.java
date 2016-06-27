@@ -131,10 +131,11 @@ public class AnalysingActivity extends AppCompatActivity
             public void onClick(View v) {
 
 
-                //resetting counter
+                //resetting counters
                 for (int j = 0; j < 8; j++) {
                     mCount[j] = 0;
                     sum[j] = 0;
+                    count[j] = 0;
                 }
 
                 mActivity[0] = "In Vehicle: 0 0";
@@ -238,14 +239,14 @@ public class AnalysingActivity extends AppCompatActivity
             time.setText(String.format("%02d", mins) + ":" + String.format("%02d", secs));
             time.setTextColor(Color.RED);
 
-            textView0.setText(mActivity[0]);
-            textView1.setText(mActivity[1]);
-            textView2.setText(mActivity[2]);
-            textView3.setText(mActivity[3]);
-            textView4.setText(mActivity[4]);
-            textView5.setText(mActivity[5]);
-            textView6.setText(mActivity[6]);
-            textView7.setText(mActivity[7]);
+            textView0.setText(mActivity[0] + " " + count[0]);
+            textView1.setText(mActivity[1] + " " + count[1]);
+            textView2.setText(mActivity[2] + " " + count[2]);
+            textView3.setText(mActivity[3] + " " + count[3]);
+            textView4.setText(mActivity[4] + " " + count[4]);
+            textView5.setText(mActivity[5] + " " + count[5]);
+            textView6.setText(mActivity[6] + " " + count[6]);
+            textView7.setText(mActivity[7] + " " + count[7]);
             textServiceCount.setText("Service Count: " + Integer.toString(mServiceCount));
 
             if (flag == 1) {
@@ -297,13 +298,13 @@ public class AnalysingActivity extends AppCompatActivity
             for (int i = 0; i < 8; i++) {
                 //Calculating averages
 
-
                 if (count[i] != 0) {
                     average = sum[i] / count[i];
                 } else {
                     average = 0;
                 }
-                out.println(mActivity[i] + "    " + average);
+                out.println(mActivity[i] + " " +
+                        " " + count[i] + " " + average);
             }
             out.println("Service Count=" + mServiceCount);
             out.println(latitude);
