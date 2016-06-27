@@ -14,15 +14,6 @@ public class MainActivity extends AppCompatActivity {
     public EditText mFileName;
     public Button mNextButton;
 
-    public String[] taskData = {
-            "Not specific",
-            "Driving",
-            "On bike",
-            "Walking",
-            "Running",
-            "Cycling"
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -53,14 +53,12 @@ public class AnalysingActivity extends AppCompatActivity
             "Tilting 0 0",
             "Unknown 0 0"
     };
-    public static int delayD;
-    public static int delayW;
     public static int mServiceCount;
     public TextView textView0, textView1, textView2, textView3, textView4, textView5, textView6, textView7, textServiceCount;
     public static TextView mLatitude, mLongitude, lastUpdateText;
-    public static int flag_d, flag_w;
-    public static int mDelayTime;
     public String latitude, longitude;
+    public static int[] sum = {0, 0, 0, 0, 0, 0, 0, 0};
+    public static int[] count = {0, 0, 0, 0, 0, 0, 0, 0};
 
     //For timer
     TextView time;
@@ -135,6 +133,7 @@ public class AnalysingActivity extends AppCompatActivity
                 //resetting counter
                 for (int j = 0; j < 8; j++) {
                     mCount[j] = 0;
+                    sum[j] = 0;
                 }
 
                 mActivity[0] = "In Vehicle: 0 0";
@@ -148,11 +147,6 @@ public class AnalysingActivity extends AppCompatActivity
 
                 flag = 0;
                 mServiceCount = 0;
-                flag_d = 0;
-                flag_w = 0;
-                mDelayTime = 10 * 60 * 1000;
-                delayD = 10000;
-                delayW = mDelayTime;
 
                 mApiClient.connect();
                 mStartButton.setVisibility(View.INVISIBLE);
@@ -258,10 +252,11 @@ public class AnalysingActivity extends AppCompatActivity
 
             handler.postDelayed(this, 1000);
             //Checking compatibility
-            if (mins == 1 && mServiceCount <= 9) {
+            if (mins == 2 && mServiceCount <= 5) {
                 Toast.makeText(AnalysingActivity.this, "Device Incompatible! \n Exiting now...", Toast.LENGTH_SHORT).show();
                 disconnect();
             }
+
         }
     };
 
@@ -291,10 +286,12 @@ public class AnalysingActivity extends AppCompatActivity
             out.println("");
             out.println("");
             time.setText(R.string.start_time);
+            int average;
 
             // Write each string in the array on a separate line
             for (int i = 0; i < 8; i++) {
-                out.println(mActivity[i]);
+                average = sum[i] / count[i];
+                out.println(mActivity[i] + " " + average);
             }
             out.println("Service Count=" + mServiceCount);
             out.println(latitude);

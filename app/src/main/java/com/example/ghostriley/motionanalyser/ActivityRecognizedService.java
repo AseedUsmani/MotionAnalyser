@@ -45,8 +45,10 @@ public class ActivityRecognizedService extends IntentService {
         for (DetectedActivity activity : probableActivities) {
             switch (activity.getType()) {
                 case DetectedActivity.IN_VEHICLE: {
+                    mObject.count[0]++;
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[0]++;
+                        mObject.sum[0] = mObject.sum[0] + activity.getConfidence();
                         mObject.flag_d++;
                         mObject.flag_w = 0;
                         if (mObject.flag_d == 2) {
@@ -57,24 +59,30 @@ public class ActivityRecognizedService extends IntentService {
                     break;
                 }
                 case DetectedActivity.ON_BICYCLE: {
+                    mObject.count[1]++;
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[1]++;
+                        mObject.sum[1] = mObject.sum[1] + activity.getConfidence();
                     }
                     mObject.mActivity[1] = "Cycling: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[1]);
                     Log.e("ActivityRecognition", "Cycling: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[1]));
                     break;
                 }
                 case DetectedActivity.ON_FOOT: {
+                    mObject.count[2]++;
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[2]++;
+                        mObject.sum[2] = mObject.sum[2] + activity.getConfidence();
                     }
                     mObject.mActivity[2] = "On Foot: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[2]);
                     Log.e("ActivityRecognition", "On foot: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[2]));
                     break;
                 }
                 case DetectedActivity.RUNNING: {
+                    mObject.count[3]++;
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[3]++;
+                        mObject.sum[3] = mObject.sum[3] + activity.getConfidence();
                     }
                     mObject.mActivity[3] = "Running: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[3]);
                     Log.e("ActivityRecognition", "Running: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[3]));
@@ -82,17 +90,22 @@ public class ActivityRecognizedService extends IntentService {
                 }
 
                 case DetectedActivity.STILL: {
+                    mObject.count[4]++;
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[4]++;
+                        mObject.sum[4] = mObject.sum[4] + activity.getConfidence();
                     }
+
                     mObject.mActivity[4] = "Still: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[4]);
                     Log.e("ActivityRecognition", "Still: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[4]));
                     break;
                 }
 
                 case DetectedActivity.WALKING: {
+                    mObject.count[5]++;
                     if (activity.getConfidence() >= (confidence - 10)) {
                         mObject.mCount[5]++;
+                        mObject.sum[5] = mObject.sum[5] + activity.getConfidence();
 
                         if (mObject.flag_d >= 2 || mObject.flag_w == 1) {
                             mObject.flag_w++;
@@ -115,8 +128,10 @@ public class ActivityRecognizedService extends IntentService {
                 }
 
                 case DetectedActivity.TILTING: {
+                    mObject.count[6]++;
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[6]++;
+                        mObject.sum[6] = mObject.sum[6] + activity.getConfidence();
                     }
                     mObject.mActivity[6] = "Tilting: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[6]);
                     Log.e("ActivityRecognition", "Tilting: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[6]));
@@ -124,8 +139,10 @@ public class ActivityRecognizedService extends IntentService {
                 }
 
                 case DetectedActivity.UNKNOWN: {
+                    mObject.count[7]++;
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[7]++;
+                        mObject.sum[7] = mObject.sum[7] + activity.getConfidence();
                     }
                     mObject.mActivity[7] = "Unknown: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[7]);
                     Log.e("ActivityRecognition", "Unknown: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[7]));
