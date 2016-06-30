@@ -84,6 +84,7 @@ public class ActivityRecognizedService extends IntentService {
                     }
                     mObject.mActivity[3] = "Running: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[3]);
                     Log.e("ActivityRecognition", "Running: " + activity.getConfidence() + " " + Integer.toString(mObject.mCount[3]));
+
                     break;
                 }
 
@@ -92,6 +93,7 @@ public class ActivityRecognizedService extends IntentService {
                     mObject.sum[4] = mObject.sum[4] + activity.getConfidence();
                     if (activity.getConfidence() >= confidence) {
                         mObject.mCount[4]++;
+                        mObject.flag = 1;
                     }
 
                     mObject.mActivity[4] = "Still: " + Integer.toString(activity.getConfidence()) + " " + Integer.toString(mObject.mCount[4]);
@@ -112,11 +114,6 @@ public class ActivityRecognizedService extends IntentService {
                                 mObject.flag_w = 0;
                                 mObject.flag_d = 0;
                                 mObject.flag = 1;
-                                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                                builder.setContentText("Have you parked your car?");
-                                builder.setSmallIcon(R.mipmap.ic_launcher);
-                                builder.setContentTitle(getString(R.string.app_name));
-                                NotificationManagerCompat.from(this).notify(0, builder.build());
                             }
                         }
                     }

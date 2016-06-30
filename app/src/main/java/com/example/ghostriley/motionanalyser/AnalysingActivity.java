@@ -1,8 +1,11 @@
 package com.example.ghostriley.motionanalyser;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -37,12 +40,15 @@ public class AnalysingActivity extends AppCompatActivity
     public GoogleApiClient mApiClient;
     public static final String TAG = MainActivity.class.getSimpleName();
 
-
-    protected String mFileName;
-    public Button mStartButton;
-    public Button mFinishButton;
-    public static int flag;
-    public static int[] mCount = {0, 0, 0, 0, 0, 0, 0, 0};
+    protected String mFileName; //To save fileName
+    public Button mStartButton; //To start API
+    public Button mFinishButton; //To finish activity; i.e, disconnect API, Save File
+    public Button mShowMapButton; //To open map activity
+    public Button mClearMemoryButton; //To clear memory of parking locations
+    public static int flag; //To save location; when flag==1; save location
+    public static int[] mCount = {0, 0, 0, 0, 0, 0, 0, 0}; //To count no. of times activity confirmed
+    public static int[] sum = {0, 0, 0, 0, 0, 0, 0, 0}; //To calculate sum of values of confidence, and hence the average
+    public static int[] count = {0, 0, 0, 0, 0, 0, 0, 0}; //To calculate average
     public static String mActivity[] = {
             "Driving 0 0",
             "Cycling 0 0",
@@ -54,12 +60,12 @@ public class AnalysingActivity extends AppCompatActivity
             "Unknown 0 0"
     };
     public static int mServiceCount; //Count no. of times service has been called
-    public TextView textView0, textView1, textView2, textView3, textView4, textView5, textView6, textView7, textServiceCount;
+    public TextView textView0, textView1, textView2, textView3, textView4, textView5, textView6, textView7; //To display activity details
+    public TextView textServiceCount; //To display service count
     public static TextView mLatitude, mLongitude, lastUpdateText; //To display
     public static int flag_d, flag_w; //To detect parking
     public String latitude, longitude; //To save latitude and longitude
-    public static int[] sum = {0, 0, 0, 0, 0, 0, 0, 0}; //To calculate sum of values of confidence, and hence the average
-    public static int[] count = {0, 0, 0, 0, 0, 0, 0, 0}; //To calculate average
+    public String savedTime; //To save time of the location saved
 
     //For timer
     TextView time;
@@ -111,6 +117,8 @@ public class AnalysingActivity extends AppCompatActivity
 
         mStartButton = (Button) findViewById(R.id.startButton);
         mFinishButton = (Button) findViewById(R.id.finishButton);
+        mShowMapButton = (Button) findViewById(R.id.showMapButton);
+        mClearMemoryButton = (Button) findViewById(R.id.clearMemoryButton);
         locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         //Retrieving information
@@ -129,7 +137,6 @@ public class AnalysingActivity extends AppCompatActivity
         mStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
 
                 //resetting counters
                 for (int j = 0; j < 8; j++) {
@@ -184,6 +191,21 @@ public class AnalysingActivity extends AppCompatActivity
                 disconnect();
             }
         });
+
+        mShowMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mapIntent = new Intent(AnalysingActivity.this, MapsActivity.class);
+                startActivity(mapIntent);
+            }
+        });
+
+        mClearMemoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearMemory();
+            }
+        });
     }
 
     @Override
@@ -196,11 +218,13 @@ public class AnalysingActivity extends AppCompatActivity
     @Override
     public void onConnectionSuspended(int i) {
         Toast.makeText(AnalysingActivity.this, "Connection to Google Services suspended!", Toast.LENGTH_LONG).show();
+        mApiClient.reconnect();
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Toast.makeText(AnalysingActivity.this, "Connection to Google Services failed!", Toast.LENGTH_LONG).show();
+        mApiClient.connect();
     }
 
     public void disconnect() {
@@ -216,16 +240,28 @@ public class AnalysingActivity extends AppCompatActivity
         milliseconds = 0;
         handler.removeCallbacks(updateTimer);
 
-        Intent intent2 = new Intent(AnalysingActivity.this, ActivityRecognizedService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(AnalysingActivity.this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
-        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
-        mApiClient.disconnect();
+        if (mApiClient.isConnected()) {
+            Intent intent2 = new Intent(AnalysingActivity.this, ActivityRecognizedService.class);
+            PendingIntent pendingIntent = PendingIntent.getService(AnalysingActivity.this, 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient, pendingIntent);
+            mApiClient.disconnect();
+        }
 
         Intent intent = new Intent(AnalysingActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
 
         finish();
+    }
+
+
+    public void clearMemory() {
+        //To clear all data
+        Toast.makeText(AnalysingActivity.this, "Memory cleared", Toast.LENGTH_LONG).show();
+        SharedPreferences sharedPreferences = getSharedPreferences("Data", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.commit();
     }
 
     public Runnable updateTimer = new Runnable() {
@@ -256,10 +292,11 @@ public class AnalysingActivity extends AppCompatActivity
 
             handler.postDelayed(this, 1000);
             //Checking compatibility
-            if (mins == 2 && mServiceCount <= 5) {
+            /*if (mins == 2 && mServiceCount <= 34
+            ) {
                 Toast.makeText(AnalysingActivity.this, "Device Incompatible! \n Exiting now...", Toast.LENGTH_SHORT).show();
                 disconnect();
-            }
+            }*/
 
         }
     };
@@ -297,7 +334,6 @@ public class AnalysingActivity extends AppCompatActivity
             // Write each string in the array on a separate line
             for (int i = 0; i < 8; i++) {
                 //Calculating averages
-
                 if (count[i] != 0) {
                     average = sum[i] / count[i];
                 } else {
@@ -369,8 +405,52 @@ public class AnalysingActivity extends AppCompatActivity
                 mLongitude.setText(longitude);
                 lastUpdateText.setText("Last update" + mins + ":" + String.format("%02d", secs) + ":"
                         + String.format("%03d", milliseconds));
+
+
+                //Saving latitude and longitude in Shared Preferences
+                final SharedPreferences sharedPreferences2 = getSharedPreferences("Data", MODE_PRIVATE);
+                final SharedPreferences.Editor editor = sharedPreferences2.edit();
+                savedTime = Integer.toString(new java.sql.Time(System.currentTimeMillis()).getHours()) + ":" +
+                        Integer.toString(new java.sql.Time(System.currentTimeMillis()).getMinutes());
+                for (int i = 1; i < 5; i++) {
+                    // a: lAtitude; o: lOngitude; t:Time
+
+                    /* Technique used: When a new entry is to be saved
+                                     Entry at 2nd slot is shifted to 1st slot;
+                                     3rd to 2nd and so on...
+                                     Entry at 4th and 5th slot is same,
+                                     so new entry is saved at 5th slot
+                     */
+                    editor.putString(Integer.toString(i) + "a", sharedPreferences2.getString(Integer.toString(i + 1) + "a", ""));
+                    editor.putString(Integer.toString(i) + "o", sharedPreferences2.getString(Integer.toString(i + 1) + "o", ""));
+                    editor.putString(Integer.toString(i) + "t", sharedPreferences2.getString(Integer.toString(i + 1) + "t", ""));
+                }
+                editor.putString("5" + "a", Double.toString(location.getLatitude()));
+                editor.putString("5" + "o", Double.toString(location.getLongitude()));
+                editor.putString("5" + "t", savedTime);
+                editor.commit();
+
+                //Generating notification
+                final Intent yIntent = new Intent(AnalysingActivity.this, MapsActivity.class); //for yes
+                final PendingIntent pendingIntentY = PendingIntent.getActivity(AnalysingActivity.this, 0, yIntent, 0);
+
+                final Intent nIntent = new Intent(AnalysingActivity.this, notiServices.class);
+                final PendingIntent pendingIntentN = PendingIntent.getService(AnalysingActivity.this, 0, nIntent, 0);
+
+
+                Notification noti = new Notification.Builder(AnalysingActivity.this)
+                        .setContentTitle("Parking Notification")
+                        .setContentText("Did you park your vehicle?").setSmallIcon(R.mipmap.ic_launcher)
+                         .setContentIntent(pendingIntentN)
+                        .addAction(R.mipmap.ic_launcher, "No", pendingIntentN)
+                        .addAction(R.mipmap.ic_launcher, "Yes", pendingIntentY)
+                        .build();
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                noti.flags |= Notification.FLAG_AUTO_CANCEL;
+                notificationManager.notify(0, noti);
             }
         }
+
 
         @Override
         public void onProviderDisabled(String provider) {
@@ -387,7 +467,6 @@ public class AnalysingActivity extends AppCompatActivity
             // TODO Auto-generated method stub
         }
     }
-
 
     /*@Override
     public void onClick(DialogInterface dialog, int which) {

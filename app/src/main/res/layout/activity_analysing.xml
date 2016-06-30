@@ -23,10 +23,10 @@
         android:id="@+id/startButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/finishButton"
+        android:text="Start"
         android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/finishButton"
-        android:text="Start" />
+        android:layout_toLeftOf="@+id/showMapButton"
+        android:layout_toStartOf="@+id/showMapButton" />
 
     <TextView
         android:id="@+id/timer"
@@ -171,5 +171,24 @@
         android:paddingTop="4dp"
         android:text="Last Location Update: "
         android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Map"
+        android:id="@+id/showMapButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:visibility="visible"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear Memory"
+        android:id="@+id/clearMemoryButton"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/finishButton"
+        android:layout_toStartOf="@+id/finishButton" />
 
 </RelativeLayout>
