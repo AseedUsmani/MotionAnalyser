@@ -1,31 +1,25 @@
 package com.example.ghostriley.motionanalyser;
 
-import android.app.IntentService;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
+import android.content.SharedPreferences;
 
 /**
  * Created by GhostRiley on 29/06/2016.
  */
-public class notiServices extends IntentService {
-
-    public notiServices() {
-        super("notiServices");
-    }
+public class notiServices extends BroadcastReceiver {
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        Toast.makeText(notiServices.this, "onHandleIntent called", Toast.LENGTH_SHORT).show();
-        clearNotification();
-        Toast.makeText(notiServices.this, "onHandleIntent called", Toast.LENGTH_SHORT).show();
-    }
+    public void onReceive(Context context, Intent intent) {
 
-    public void clearNotification() {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.cancel(0);
-        Intent intent = new Intent(notiServices.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        //When clicked "No" in notifications, clear Memory and clear notification.
+        final SharedPreferences sharedPreferences = context.getSharedPreferences("Data", context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(0);
     }
 }

@@ -435,7 +435,7 @@ public class AnalysingActivity extends AppCompatActivity
                 final PendingIntent pendingIntentY = PendingIntent.getActivity(AnalysingActivity.this, 0, yIntent, 0);
 
                 final Intent nIntent = new Intent(AnalysingActivity.this, notiServices.class);
-                final PendingIntent pendingIntentN = PendingIntent.getService(AnalysingActivity.this, 0, nIntent, 0);
+                final PendingIntent pendingIntentN = PendingIntent.getBroadcast(AnalysingActivity.this, 0, nIntent, 0);
 
 
                 Notification noti = new Notification.Builder(AnalysingActivity.this)
